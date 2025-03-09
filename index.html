@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Typing Master</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 450px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #text-to-type {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #input-box {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #stats {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        #timer {
+            font-size: 16px;
+            color: #ff0000;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Typing Master</h1>
+        <select id="difficulty-select">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+            <option value="expert">Expert</option>
+        </select>
+        <div id="lesson-container">
+            <p id="text-to-type">Select a difficulty and click Start to Begin</p>
+            <input type="text" id="input-box" placeholder="Start typing..." disabled>
+            <div id="stats">
+                <p>Words Per Minute: <span id="wpm">0</span></p>
+                <p>Accuracy: <span id="accuracy">0</span>%</p>
+                <p id="timer">Time Left: <span id="time-left">60</span> seconds</p>
+            </div>
+            <button id="start-button">Start Lesson</button>
+        </div>
+    </div>
+    <script>
+        const inputBox = document.getElementById('input-box');
+        const textToType = document.getElementById('text-to-type');
+        const startButton = document.getElementById('start-button');
+        const wpmDisplay = document.getElementById('wpm');
+        const accuracyDisplay = document.getElementById('accuracy');
+        const timerDisplay = document.getElementById('time-left');
+        const difficultySelect = document.getElementById('difficulty-select');
+
+        // Define texts for each difficulty level
+        const texts = {
+            easy: [
+                "The quick brown fox jumps over the lazy dog.",
+                "I like to eat apples.",
+                "This is an easy sentence.",
+                "The sky is blue.",
+                "Dogs are great pets.",
+                "I enjoy reading books.",
+                "The sun is shining brightly.",
+                "It is a nice day.",
+                "A cat is sleeping on the couch.",
+                "I love ice cream.",
+                "She is my friend.",
+                "The car is fast.",
+                "I am learning to type.",
+                "I play soccer with my friends.",
+                "It is raining outside.",
+                "We are going to the park.",
+                "I am reading a book right now.",
+                "The tree is tall.",
+                "She is wearing a red dress.",
+                "I have a pet bird.",
+                "He likes to play chess.",
+                "This is a short text.",
+                "I enjoy watching movies.",
+                "I am studying for my exams.",
+                "I have a blue ball."
+            ],
+            medium: [
+                "Typing tests are important for improving your speed.",
+                "Coding is fun when you practice consistently.",
+                "Web development is a useful skill for everyone.",
+                "Learning programming languages takes time and patience.",
+                "The Internet is a vast resource of knowledge.",
+                "Artificial Intelligence is changing the world.",
+                "Technology is evolving rapidly in the 21st century.",
+                "Good communication skills are essential in the workplace.",
+                "Learning to code opens many career opportunities.",
+                "The more you practice, the better you get.",
+                "It's important to balance work and relaxation.",
+                "Social media has a huge impact on society today.",
+                "The human brain is a complex organ.",
+                "I believe in continuous self-improvement.",
+                "A journey of a thousand miles begins with a single step.",
+                "Success is a result of hard work and determination.",
+                "Innovation distinguishes between a leader and a follower.",
+                "The growth of e-commerce is revolutionizing business.",
+                "Technology has made life easier in many ways.",
+                "Sustainability is a key factor in modern business practices.",
+                "The world is constantly changing, and we must adapt.",
+                "Good leaders inspire and motivate their teams.",
+                "Every great achievement starts with a single idea.",
+                "Learning never exhausts the mind."
+            ],
+            hard: [
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                "A programming language is a set of instructions that tell a computer what to do.",
+                "The laws of physics govern the behavior of matter and energy in the universe.",
+                "Quantum computing is an emerging technology that could revolutionize industries.",
+                "Data encryption is crucial for securing sensitive information on the internet.",
+                "Artificial intelligence has the potential to outperform humans in various fields.",
+                "The study of genetics has led to significant breakthroughs in medicine.",
+                "Blockchain technology is gaining momentum in the financial industry.",
+                "Climate change is one of the biggest challenges facing the world today.",
+                "The concept of the multiverse has been explored in theoretical physics and cosmology.",
+                "The rise of automation has led to increased efficiency in manufacturing processes.",
+                "Human-computer interaction is a field of study that focuses on how people interact with computers.",
+                "Neural networks are used in machine learning to simulate the way the human brain processes information.",
+                "The theory of relativity revolutionized our understanding of space and time.",
+                "The human genome consists of over three billion base pairs of DNA.",
+                "Astronomy is the study of celestial bodies and the universe beyond our planet.",
+                "The Internet of Things connects everyday objects to the internet, enabling smarter cities.",
+                "Genetic engineering has the potential to cure genetic diseases and enhance human capabilities.",
+                "Space exploration has led to numerous scientific discoveries about our solar system.",
+                "Cryptocurrency is a digital form of money that uses encryption techniques to secure transactions.",
+                "Artificial neural networks are used to develop deep learning models for pattern recognition.",
+                "Cybersecurity is essential to protect personal data from online threats.",
+                "The laws of thermodynamics govern the behavior of energy and matter in the universe.",
+                "The study of black holes challenges our understanding of physics and the universe.",
+                "Futuristic technologies such as flying cars and robots are no longer just science fiction."
+            ],
+            expert: [
+                "The harmonic oscillation of a mass-spring system in a damped, driven environment can be modeled by second-order differential equations.",
+                "Deep learning techniques such as convolutional neural networks (CNNs) are used to analyze and interpret visual data in computer vision applications.",
+                "Blockchain's decentralized nature provides an immutable ledger for secure, transparent transactions in financial markets and beyond.",
+                "The Schrödinger equation governs the quantum state of a system and describes how the quantum state evolves over time.",
+                "The Uncertainty Principle in quantum mechanics asserts that the position and momentum of a particle cannot both be precisely measured simultaneously.",
+                "Advanced machine learning models, like transformers and attention mechanisms, have revolutionized natural language processing (NLP) tasks.",
+                "In the context of genetic modification, CRISPR-Cas9 is a powerful tool that allows precise edits to be made to the DNA of living organisms.",
+                "The concept of superposition in quantum mechanics suggests that particles can exist in multiple states simultaneously until measured.",
+                "In astrophysics, dark matter and dark energy are hypothesized to constitute the majority of the universe's mass-energy content, yet remain largely invisible.",
+                "The theory of computation explores the limits of what can be computed and the efficiency of algorithms in processing problems of various complexities.",
+                "The Turing machine is a theoretical construct that underpins much of modern computer science and the study of algorithmic computation.",
+                "The principles of electromagnetism are governed by Maxwell's equations, which describe the behavior of electric and magnetic fields.",
+                "In bioinformatics, algorithms are employed to analyze and interpret biological data, particularly in genomics and proteomics.",
+                "Quantum entanglement is a phenomenon where particles become interconnected in such a way that the state of one particle instantly influences the other, regardless of distance.",
+                "String theory attempts to reconcile quantum mechanics and general relativity by proposing that fundamental particles are not point-like but rather one-dimensional strings.",
+                "Machine learning models can learn complex patterns in data, but overfitting occurs when a model becomes too specific to the training data, reducing its generalization capability.",
+                "In theoretical computer science, P vs NP is one of the most famous unsolved problems, questioning whether every problem whose solution can be verified quickly can also be solved quickly.",
+                "In cryptography, RSA encryption utilizes the fact that large numbers can be factored only with difficulty, ensuring the security of encrypted communications.",
+                "The laws of thermodynamics govern the relationship between heat, energy, and work, with applications ranging from engines to quantum physics.",
+                "In neuroscience, the brain's plasticity allows for the modification of neural connections in response to learning and experience.",
+                "The study of chaos theory reveals that even deterministic systems can exhibit unpredictable behavior, which has applications in everything from weather forecasting to economics."
+            ]
+        };
+
+        let startTime = null;
+        let correctChars = 0;
+        let incorrectChars = 0;
+        let timerInterval = null;
+        let timeLeft = 60;
+        let currentText = '';
+
+        startButton.addEventListener('click', startLesson);
+        inputBox.addEventListener('input', updateTyping);
+
+        function getRandomText() {
+            const difficulty = difficultySelect.value;
+            const randomIndex = Math.floor(Math.random() * texts[difficulty].length);
+            return texts[difficulty][randomIndex];
+        }
+
+        function startLesson() {
+            inputBox.disabled = false;
+            inputBox.value = '';
+            timeLeft = 60;
+            timerDisplay.textContent = `Time Left: ${timeLeft} seconds`;
+            currentText = getRandomText();
+            textToType.textContent = currentText;
+            startButton.disabled = true;
+            startTime = new Date();
+            correctChars = 0;
+            incorrectChars = 0;
+            wpmDisplay.textContent = '0';
+            accuracyDisplay.textContent = '100';
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timerDisplay.textContent = `Time Left: ${timeLeft} seconds`;
+
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                inputBox.disabled = true;
+                startButton.disabled = false;
+                alert("Time's up! Your result is below.");
+            }
+        }
+
+        function updateTyping() {
+            const typedText = inputBox.value;
+            const correctText = currentText.substring(0, typedText.length);
+
+            let accuracy = Math.round((correctChars / typedText.length) * 100);
+
+            let correctWpm = Math.round((typedText.split(' ').length / ((new Date() - startTime) / 1000)) * 60);
+            wpmDisplay.textContent = correctWpm;
+            accuracyDisplay.textContent = accuracy;
+
+            textToType.innerHTML = getHighlightedText(currentText, typedText);
+
+            if (typedText === currentText) {
+                clearInterval(timerInterval);
+                inputBox.disabled = true;
+                startButton.disabled = false;
+                alert("You completed the lesson!");
+            }
+        }
+
+        function getHighlightedText(sentence, typedText) {
+            let result = '';
+            for (let i = 0; i < sentence.length; i++) {
+                if (i < typedText.length) {
+                    if (sentence[i] === typedText[i]) {
+                        result += `<span class="correct">${sentence[i]}</span>`;
+                    } else {
+                        result += `<span class="incorrect">${sentence[i]}</span>`;
+                    }
+                } else {
+                    result += `<span>${sentence[i]}</span>`;
+                }
+            }
+            return result;
+        }
+    </script>
+</body>
+</html>
